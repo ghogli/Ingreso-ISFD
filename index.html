@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Evaluación y Certificación</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col justify-between font-sans">
+
+  <header class="bg-blue-900 text-white shadow-md p-4">
+    <div class="max-w-xl mx-auto">
+      <p id="header-subtitulo" class="text-xs uppercase tracking-wider text-blue-200 font-semibold"></p>
+      <h1 id="header-titulo" class="text-lg font-bold leading-tight">Cargando...</h1>
+    </div>
+  </header>
+
+  <main class="flex-grow w-full max-w-xl mx-auto px-4 py-6">
+    <!-- PANTALLA 0: CARGANDO -->
+    <div id="vista-cargando" class="bg-white rounded-2xl shadow p-8 text-center">
+      <div class="w-10 h-10 border-4 border-blue-900 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+      <p>Conectando con la plataforma...</p>
+    </div>
+
+    <!-- PANTALLA 1: DATOS -->
+    <div id="vista-inicio" class="hidden bg-white rounded-2xl shadow p-6 space-y-4">
+      <div>
+        <label class="block text-sm font-bold text-slate-700 mb-1">Ingresá tu DNI (sin puntos)</label>
+        <input id="input-dni" type="tel" inputmode="numeric" class="w-full px-4 py-3 border-2 rounded-xl focus:border-blue-800">
+      </div>
+
+      <div id="campos-nuevos" class="hidden space-y-4 pt-2">
+        <div>
+          <label class="block text-sm font-bold text-slate-700 mb-1">Apellido/s</label>
+          <input id="input-apellido" type="text" class="w-full px-4 py-3 border-2 rounded-xl focus:border-blue-800 uppercase">
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-slate-700 mb-1">Nombre/s</label>
+          <input id="input-nombre" type="text" class="w-full px-4 py-3 border-2 rounded-xl focus:border-blue-800 capitalize">
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-slate-700 mb-1">Correo Electrónico</label>
+          <input id="input-correo" type="email" class="w-full px-4 py-3 border-2 rounded-xl focus:border-blue-800">
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-slate-700 mb-1">Instituto (ISFD)</label>
+          <input id="input-instituto" type="text" class="w-full px-4 py-3 border-2 rounded-xl focus:border-blue-800">
+        </div>
+      </div>
+
+      <p id="error-inicio" class="hidden text-sm text-red-600 bg-red-50 p-3 rounded-xl font-semibold"></p>
+
+      <button id="btn-verificar" onclick="verificarDNI()" class="w-full bg-blue-900 text-white font-bold py-4 rounded-xl">Continuar</button>
+      <button id="btn-comenzar" onclick="comenzarCuestionario()" class="hidden w-full bg-emerald-700 text-white font-bold py-4 rounded-xl">Comenzar Cuestionario</button>
+    </div>
+
+    <!-- PANTALLA 2: CUESTIONARIO -->
+    <div id="vista-preguntas" class="hidden bg-white rounded-2xl shadow p-5 space-y-5">
+      <div class="flex justify-between text-xs font-bold text-slate-500 mb-1">
+        <span id="texto-progreso"></span>
+        <span id="porcentaje-progreso"></span>
+      </div>
+      <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+        <div id="barra-progreso" class="bg-blue-800 h-full transition-all"></div>
+      </div>
+
+      <div id="preg-modulo" class="inline-block bg-blue-100 text-blue-900 text-xs font-bold px-3 py-1 rounded-full"></div>
+      <h2 id="preg-enunciado" class="text-base font-bold text-slate-800"></h2>
+      
+      <div id="contenedor-opciones" class="space-y-3"></div>
+
+      <div id="caja-pista" class="hidden bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-xl text-sm text-amber-900">
+        <p class="font-bold">💡 Pista pedagógica:</p>
+        <p id="texto-pista"></p>
+      </div>
+
+      <div class="flex gap-3 pt-3">
+        <button id="btn-anterior" onclick="irAnterior()" class="w-1/3 py-3.5 bg-slate-200 text-slate-600 font-bold rounded-xl">Atrás</button>
+        <button id="btn-siguiente" onclick="validarYAvanzar()" class="w-2/3 py-3.5 bg-blue-900 text-white font-bold rounded-xl">Siguiente</button>
+      </div>
+    </div>
+
+    <!-- PANTALLA 3: RESULTADO -->
+    <div id="vista-final" class="hidden bg-white rounded-2xl shadow p-6 text-center space-y-5">
+      <h2 class="text-xl font-bold text-slate-800" id="titulo-resultado">¡Completaste el trayecto!</h2>
+      <p id="mensaje-resultado" class="text-sm text-slate-600">Tus respuestas fueron registradas. Descargá tu certificado oficial validado por la provincia.</p>
+      
+      <a id="btn-descargar-pdf" href="#" target="_blank" class="hidden flex justify-center w-full bg-emerald-700 text-white font-bold py-4 rounded-xl shadow-lg">
+        📄 Descargar Certificado (PDF)
+      </a>
+    </div>
+  </main>
+
+  <script>
+    // ==========================================
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyk6WqkrWXRQ8jrTgsYSIYRm-NHJWY7QZTVZFZVJt1CtDl37mGqJhqz5RFyzei2cveC/exec";
+    // ==========================================
+    
+    let configCurso, listaPreguntas, indiceActual = 0, respuestasUsuario = {}, datosAlumno = {};
+
+    window.onload = async () => {
+      try {
+        const res = await fetch(`${SCRIPT_URL}?action=init`);
+        const data = await res.json();
+        configCurso = data.config;
+        listaPreguntas = data.preguntas;
+        document.getElementById('header-titulo').textContent = configCurso.titulo;
+        document.getElementById('header-subtitulo').textContent = configCurso.subtitulo;
+        mostrarVista('vista-inicio');
+      } catch (e) {
+        document.getElementById('vista-cargando').innerHTML = "Error al conectar.";
+      }
+    };
+
+    async function verificarDNI() {
+      const dni = document.getElementById('input-dni').value.replace(/\D/g, '');
+      if (dni.length < 7) return alert("DNI inválido");
+      
+      document.getElementById('btn-verificar').textContent = "Verificando...";
+      const res = await fetch(`${SCRIPT_URL}?action=check_dni&dni=${dni}`);
+      const data = await res.json();
+      
+      if (data.encontrado && data.registro.link_pdf) {
+        document.getElementById('btn-descargar-pdf').href = data.registro.link_pdf;
+        document.getElementById('btn-descargar-pdf').classList.remove('hidden');
+        document.getElementById('titulo-resultado').textContent = "Certificado recuperado";
+        document.getElementById('mensaje-resultado').textContent = "Ya completaste este cuestionario anteriormente.";
+        mostrarVista('vista-final');
+      } else {
+        document.getElementById('input-dni').disabled = true;
+        document.getElementById('campos-nuevos').classList.remove('hidden');
+        document.getElementById('btn-verificar').classList.add('hidden');
+        document.getElementById('btn-comenzar').classList.remove('hidden');
+      }
+    }
+
+    function comenzarCuestionario() {
+      datosAlumno = {
+        dni: document.getElementById('input-dni').value,
+        apellido: document.getElementById('input-apellido').value,
+        nombre: document.getElementById('input-nombre').value,
+        correo: document.getElementById('input-correo').value,
+        instituto: document.getElementById('input-instituto').value
+      };
+      if(!datosAlumno.apellido || !datosAlumno.nombre) return alert("Completá los datos");
+      mostrarVista('vista-preguntas');
+      renderizarPregunta();
+    }
+
+    function renderizarPregunta() {
+      const preg = listaPreguntas[indiceActual];
+      const pct = Math.round(((indiceActual + 1) / listaPreguntas.length) * 100);
+      document.getElementById('texto-progreso').textContent = `Pregunta ${indiceActual + 1} de ${listaPreguntas.length}`;
+      document.getElementById('barra-progreso').style.width = `${pct}%`;
+      document.getElementById('preg-modulo').textContent = preg.modulo;
+      document.getElementById('preg-enunciado').textContent = preg.enunciado;
+      document.getElementById('caja-pista').classList.add('hidden');
+      
+      const cont = document.getElementById('contenedor-opciones');
+      cont.innerHTML = '';
+      const selec = respuestasUsuario[preg.nro] || [];
+      
+      preg.opciones.forEach(op => {
+        const btn = document.createElement('button');
+        const activa = selec.includes(op.letra);
+        btn.className = `w-full text-left p-4 rounded-xl border-2 flex gap-3 ${activa ? 'border-blue-800 bg-blue-50 text-blue-900 font-bold' : 'border-slate-200'}`;
+        btn.onclick = () => {
+          if(preg.tipo_control === 'MULTIPLE') {
+            if(selec.includes(op.letra)) respuestasUsuario[preg.nro] = selec.filter(l => l !== op.letra);
+            else respuestasUsuario[preg.nro] = [...selec, op.letra];
+          } else {
+            respuestasUsuario[preg.nro] = [op.letra];
+          }
+          renderizarPregunta();
+        };
+        btn.innerHTML = `<span class="w-6 h-6 flex justify-center items-center rounded bg-${activa?'blue-800 text-white':'slate-200'}">${op.letra}</span><span>${op.texto}</span>`;
+        cont.appendChild(btn);
+      });
+      document.getElementById('btn-anterior').style.visibility = indiceActual === 0 ? 'hidden' : 'visible';
+      document.getElementById('btn-siguiente').textContent = indiceActual === listaPreguntas.length - 1 ? 'Finalizar' : 'Siguiente';
+    }
+
+    function validarYAvanzar() {
+      const preg = listaPreguntas[indiceActual];
+      const selec = respuestasUsuario[preg.nro] || [];
+      if(selec.length === 0) return alert("Seleccioná una opción");
+
+      if (preg.modo === 'REPASO' && preg.correctas.length > 0) {
+        const ok = selec.length === preg.correctas.length && selec.every(m => preg.correctas.includes(m));
+        if (!ok) {
+          document.getElementById('caja-pista').classList.remove('hidden');
+          document.getElementById('texto-pista').textContent = preg.pista;
+          return;
+        }
+      }
+
+      if(indiceActual < listaPreguntas.length - 1) {
+        indiceActual++; renderizarPregunta();
+      } else {
+        enviarFinal();
+      }
+    }
+
+    function irAnterior() { if(indiceActual > 0) { indiceActual--; renderizarPregunta(); } }
+
+    async function enviarFinal() {
+      mostrarVista('vista-cargando');
+      document.querySelector('#vista-cargando p').textContent = "Generando PDF oficial en Drive, aguardá unos segundos...";
+      
+      const res = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({...datosAlumno, respuestas: respuestasUsuario})
+      });
+      const data = await res.json();
+      
+      if(data.registro.link_pdf) {
+        document.getElementById('btn-descargar-pdf').href = data.registro.link_pdf;
+        document.getElementById('btn-descargar-pdf').classList.remove('hidden');
+      }
+      mostrarVista('vista-final');
+    }
+
+    function mostrarVista(id) {
+      ['vista-cargando', 'vista-inicio', 'vista-preguntas', 'vista-final'].forEach(v => document.getElementById(v).classList.add('hidden'));
+      document.getElementById(id).classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
