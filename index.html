@@ -43,8 +43,10 @@
           <input id="input-correo" type="email" class="w-full px-4 py-3 border-2 rounded-xl focus:border-blue-800">
         </div>
         <div>
-          <label class="block text-sm font-bold text-slate-700 mb-1">Instituto (ISFD)</label>
-          <input id="input-instituto" type="text" class="w-full px-4 py-3 border-2 rounded-xl focus:border-blue-800">
+          <label class="block text-sm font-bold text-slate-700 mb-1">Instituto de Formación Docente (ISFD)</label>
+          <select id="input-instituto" class="w-full px-4 py-3 border-2 rounded-xl focus:border-blue-800 bg-white">
+            <option value="">Cargando institutos...</option>
+          </select>
         </div>
       </div>
 
@@ -104,17 +106,32 @@
         const data = await res.json();
         configCurso = data.config;
         listaPreguntas = data.preguntas;
+
+        // Cargar los institutos en el elemento <select>
+        const selectInst = document.getElementById('input-instituto');
+        selectInst.innerHTML = '<option value="">Seleccioná tu Instituto...</option>';
+        if (data.institutos && data.institutos.length > 0) {
+          data.institutos.forEach(inst => {
+            const opt = document.createElement('option');
+            opt.value = inst;
+            opt.textContent = inst;
+            selectInst.appendChild(opt);
+          });
+        } else {
+          selectInst.innerHTML = '<option value="">No hay institutos cargados</option>';
+        }
+
         document.getElementById('header-titulo').textContent = configCurso.titulo;
         document.getElementById('header-subtitulo').textContent = configCurso.subtitulo;
         mostrarVista('vista-inicio');
       } catch (e) {
-        document.getElementById('vista-cargando').innerHTML = "Error al conectar.";
+        document.getElementById('vista-cargando').innerHTML = "Error al conectar con el servidor.";
       }
     };
 
     async function verificarDNI() {
       const dni = document.getElementById('input-dni').value.replace(/\D/g, '');
-      if (dni.length < 7) return alert("DNI inválido");
+      if (dni.length < 7) return alert("Ingresá un DNI válido");
       
       document.getElementById('btn-verificar').textContent = "Verificando...";
       const res = await fetch(`${SCRIPT_URL}?action=check_dni&dni=${dni}`);
@@ -142,7 +159,9 @@
         correo: document.getElementById('input-correo').value,
         instituto: document.getElementById('input-instituto').value
       };
-      if(!datosAlumno.apellido || !datosAlumno.nombre) return alert("Completá los datos");
+      if(!datosAlumno.apellido || !datosAlumno.nombre || !datosAlumno.instituto) {
+        return alert("Por favor completá todos los campos y seleccioná tu instituto.");
+      }
       mostrarVista('vista-preguntas');
       renderizarPregunta();
     }
@@ -183,7 +202,7 @@
     function validarYAvanzar() {
       const preg = listaPreguntas[indiceActual];
       const selec = respuestasUsuario[preg.nro] || [];
-      if(selec.length === 0) return alert("Seleccioná una opción");
+      if(selec.length === 0) return alert("Seleccioná una opción para continuar");
 
       if (preg.modo === 'REPASO' && preg.correctas.length > 0) {
         const ok = selec.length === preg.correctas.length && selec.every(m => preg.correctas.includes(m));
