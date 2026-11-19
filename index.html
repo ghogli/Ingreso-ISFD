@@ -3,140 +3,265 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Evaluación y Certificación</title>
+  <title>Cursillo de Ingreso — Formación Docente Inicial</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Librería jsPDF para generar el certificado en el navegador sin colapsar el servidor -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    :root {
+      --azul: #015383;
+      --azul-oscuro: #013f63;
+      --rojo: #AF191A;
+      --bordo: #79111A;
+      --amarillo: #F9C349;
+    }
+    body {
+      font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+      background-color: #f4f7fa;
+      background-image: radial-gradient(rgba(1, 83, 131, 0.06) 1px, transparent 1px);
+      background-size: 22px 22px;
+    }
+    .brand-blue { background-color: var(--azul); }
+    .brand-red { background-color: var(--rojo); }
+    .brand-yellow { background-color: var(--amarillo); }
+    .text-brand-blue { color: var(--azul); }
+    .text-brand-red { color: var(--rojo); }
+  </style>
 </head>
-<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col justify-between font-sans transition-colors duration-300">
+<body class="text-slate-800 min-h-screen flex flex-col justify-between">
 
-  <header id="main-header" class="bg-blue-900 text-white shadow-md p-4 transition-colors duration-300">
-    <div class="max-w-xl mx-auto">
-      <p id="header-subtitulo" class="text-xs uppercase tracking-wider opacity-85 font-semibold"></p>
-      <h1 id="header-titulo" class="text-lg font-bold leading-tight">Cargando...</h1>
+  <!-- ENCABEZADO CON IDENTIDAD VISUAL GEOMÉTRICA -->
+  <header id="main-header" class="relative overflow-hidden bg-[#015383] text-white shadow-lg transition-colors duration-300">
+    <!-- Cinta geométrica derecha (fiel a las placas oficiales) -->
+    <svg class="pointer-events-none absolute right-0 top-0 h-full w-44 sm:w-56 opacity-95" viewBox="0 0 220 180" preserveAspectRatio="xMaxYMid slice" aria-hidden="true">
+      <!-- Borde blanco zigzag exterior -->
+      <path d="M58 -10 L18 35 L58 80 L22 125 L62 185 L220 185 L220 -10 Z" fill="#FFFFFF"/>
+      <!-- Rombo rojo superior + círculo blanco -->
+      <polygon points="102,-14 148,32 102,78 56,32" fill="#AF191A"/>
+      <circle cx="102" cy="32" r="24" fill="#FFFFFF"/>
+      <!-- Círculo azul superior derecha -->
+      <circle cx="176" cy="24" r="34" fill="#015383"/>
+      <polygon points="176,-16 216,24 176,64 136,24" fill="#F9C349" fill-opacity="0.88"/>
+      <circle cx="176" cy="24" r="22" fill="#FFFFFF"/>
+      <!-- Círculo amarillo central -->
+      <circle cx="104" cy="92" r="34" fill="#F9C349"/>
+      <!-- Rombo azul inferior -->
+      <polygon points="172,72 218,118 172,164 126,118" fill="#015383"/>
+      <circle cx="172" cy="118" r="24" fill="#FFFFFF"/>
+      <!-- Círculo rojo inferior -->
+      <circle cx="106" cy="156" r="34" fill="#AF191A"/>
+      <polygon points="106,126 136,156 106,186 76,156" fill="#79111A" fill-opacity="0.7"/>
+    </svg>
+
+    <div class="relative z-10 max-w-2xl mx-auto px-5 py-6 pr-32 sm:pr-48">
+      <span class="inline-block bg-[#AF191A] text-white text-[10px] sm:text-xs font-extrabold uppercase tracking-widest px-3 py-1 mb-2 shadow-sm">
+        Cursillo de Ingreso
+      </span>
+      <h1 id="header-titulo" class="text-lg sm:text-2xl font-extrabold uppercase tracking-tight leading-snug">
+        Cargando...
+      </h1>
+      <p id="header-subtitulo" class="mt-1.5 text-xs sm:text-sm font-medium text-white/90 border-l-4 border-[#F9C349] pl-2.5"></p>
     </div>
+    <!-- Franja inferior mostaza -->
+    <div class="h-1.5 w-full bg-[#F9C349]"></div>
   </header>
 
-  <main class="flex-grow w-full max-w-xl mx-auto px-4 py-6">
+  <main class="flex-grow w-full max-w-2xl mx-auto px-4 py-7">
+
     <!-- PANTALLA 0: CARGANDO -->
-    <div id="vista-cargando" class="bg-white rounded-2xl shadow p-8 text-center">
-      <div class="w-10 h-10 border-4 border-blue-900 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-      <p id="texto-cargando">Conectando con la plataforma...</p>
+    <div id="vista-cargando" class="bg-white rounded-2xl shadow-md border border-slate-200/80 p-10 text-center">
+      <div class="w-12 h-12 border-4 border-[#015383] border-t-[#F9C349] rounded-full animate-spin mx-auto mb-4"></div>
+      <p id="texto-cargando" class="font-semibold text-slate-600">Conectando con la plataforma...</p>
     </div>
 
-    <!-- PANTALLA 1: DATOS -->
-    <div id="vista-inicio" class="hidden bg-white rounded-2xl shadow p-6 space-y-4">
-      <div>
-        <label class="block text-sm font-bold text-slate-700 mb-1">Ingresá tu DNI (sin puntos)</label>
-        <input id="input-dni" type="tel" inputmode="numeric" class="w-full px-4 py-3 border-2 rounded-xl focus:border-blue-800 outline-none">
-      </div>
-
-      <div id="campos-nuevos" class="hidden space-y-4 pt-2">
+    <!-- PANTALLA 1: DATOS DEL ESTUDIANTE -->
+    <div id="vista-inicio" class="hidden bg-white rounded-2xl shadow-md border border-slate-200/80 overflow-hidden">
+      <div class="px-6 pt-6 pb-4 border-b border-slate-100 flex items-center gap-3">
+        <div class="w-1.5 h-10 bg-[#F9C349] rounded-full"></div>
         <div>
-          <label class="block text-sm font-bold text-slate-700 mb-1">Apellido/s</label>
-          <input id="input-apellido" type="text" class="w-full px-4 py-3 border-2 rounded-xl focus:border-blue-800 uppercase outline-none">
-        </div>
-        <div>
-          <label class="block text-sm font-bold text-slate-700 mb-1">Nombre/s</label>
-          <input id="input-nombre" type="text" class="w-full px-4 py-3 border-2 rounded-xl focus:border-blue-800 capitalize outline-none">
-        </div>
-        <div>
-          <label class="block text-sm font-bold text-slate-700 mb-1">Correo Electrónico</label>
-          <input id="input-correo" type="email" class="w-full px-4 py-3 border-2 rounded-xl focus:border-blue-800 outline-none">
-        </div>
-        <div>
-          <label class="block text-sm font-bold text-slate-700 mb-1">Instituto de Formación Docente (ISFD)</label>
-          <select id="input-instituto" class="w-full px-4 py-3 border-2 rounded-xl focus:border-blue-800 bg-white outline-none">
-            <option value="">Cargando institutos...</option>
-          </select>
+          <h2 class="text-base sm:text-lg font-extrabold text-[#015383] uppercase tracking-tight">Datos del Ingresante</h2>
+          <p class="text-xs text-slate-500">Ingresá tu DNI para comenzar o recuperar tu certificado.</p>
         </div>
       </div>
 
-      <button id="btn-verificar" onclick="verificarDNI()" class="w-full bg-blue-900 text-white font-bold py-4 rounded-xl shadow">Continuar</button>
-      <button id="btn-comenzar" onclick="comenzarCuestionario()" class="hidden w-full bg-emerald-700 text-white font-bold py-4 rounded-xl shadow">Comenzar Cuestionario</button>
+      <div class="p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">DNI (sin puntos)</label>
+          <input id="input-dni" type="tel" inputmode="numeric" placeholder="Ej: 45123456"
+            class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-[#015383] outline-none font-semibold text-slate-800 transition-colors">
+        </div>
+
+        <div id="campos-nuevos" class="hidden space-y-4 pt-2 border-t border-slate-100">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Apellido/s</label>
+              <input id="input-apellido" type="text" placeholder="GARCÍA"
+                class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-[#015383] uppercase outline-none transition-colors">
+            </div>
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Nombre/s</label>
+              <input id="input-nombre" type="text" placeholder="María"
+                class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-[#015383] capitalize outline-none transition-colors">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Correo Electrónico</label>
+            <input id="input-correo" type="email" placeholder="nombre@correo.com"
+              class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-[#015383] outline-none transition-colors">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Departamento de la Institución (Misiones)</label>
+            <select id="input-departamento" onchange="actualizarInstitutosPorDepto()"
+              class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-[#015383] bg-white outline-none transition-colors">
+              <option value="">Seleccioná el departamento...</option>
+            </select>
+          </div>
+
+          <div id="bloque-instituto" class="hidden">
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Instituto de Formación Docente (ISFD)</label>
+            <select id="input-instituto" onchange="verificarOtroInstituto()"
+              class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-[#015383] bg-white outline-none transition-colors">
+              <option value="">Seleccioná tu Instituto...</option>
+            </select>
+          </div>
+
+          <div id="bloque-otro-instituto" class="hidden bg-amber-50/70 border border-[#F9C349] rounded-xl p-4">
+            <label class="block text-xs font-bold uppercase tracking-wider text-[#015383] mb-1.5">Escribí el nombre completo de tu Instituto</label>
+            <input id="input-otro-instituto" type="text" placeholder="Nombre completo del ISFD"
+              class="w-full px-4 py-2.5 bg-white border-2 border-slate-200 rounded-xl focus:border-[#015383] outline-none">
+          </div>
+        </div>
+
+        <button id="btn-verificar" onclick="verificarDNI()"
+          class="w-full bg-[#015383] hover:bg-[#013f63] text-white font-bold uppercase tracking-wider text-sm py-4 rounded-xl shadow-md transition-all cursor-pointer">
+          Continuar
+        </button>
+
+        <button id="btn-comenzar" onclick="comenzarCuestionario()"
+          class="hidden w-full bg-[#AF191A] hover:bg-[#8d1314] text-white font-bold uppercase tracking-wider text-sm py-4 rounded-xl shadow-md transition-all cursor-pointer">
+          Comenzar Cuestionario →
+        </button>
+      </div>
     </div>
 
-    <!-- PANTALLA 2: CUESTIONARIO (Con colores dinámicos) -->
-    <div id="vista-preguntas" class="hidden bg-white rounded-2xl shadow border-t-8 border-blue-800 p-5 space-y-5 transition-all duration-300">
-      <div class="flex justify-between items-center text-xs font-bold text-slate-500 mb-1">
-        <span id="texto-progreso"></span>
-        <span id="badge-tipo" class="px-2.5 py-1 rounded-full text-xs font-extrabold uppercase tracking-wide"></span>
+    <!-- PANTALLA 2: CUESTIONARIO (Temas dinámicos dentro de la paleta oficial) -->
+    <div id="vista-preguntas" class="hidden bg-white rounded-2xl shadow-md border-t-8 border-[#015383] p-6 space-y-5 transition-all duration-300">
+      <div class="flex flex-wrap justify-between items-center gap-2 text-xs font-bold text-slate-500">
+        <span id="texto-progreso" class="uppercase tracking-wider"></span>
+        <span id="badge-tipo" class="px-3 py-1 rounded-md text-[11px] font-extrabold uppercase tracking-wider"></span>
       </div>
+
       <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
-        <div id="barra-progreso" class="bg-blue-800 h-full transition-all duration-300"></div>
+        <div id="barra-progreso" class="bg-[#015383] h-full transition-all duration-300"></div>
       </div>
 
-      <div id="preg-modulo" class="inline-block text-xs font-bold px-3 py-1 rounded-full"></div>
-      <h2 id="preg-enunciado" class="text-base font-bold text-slate-800"></h2>
-      
-      <div id="contenedor-opciones" class="space-y-3"></div>
-
-      <div id="caja-pista" class="hidden bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-xl text-sm text-amber-900">
-        <p class="font-bold">💡 Pista pedagógica:</p>
-        <p id="texto-pista"></p>
+      <div class="pt-1">
+        <div id="preg-modulo" class="inline-block bg-[#AF191A] text-white text-xs font-extrabold uppercase tracking-wider px-3 py-1 mb-3"></div>
+        <div class="border-l-4 border-[#F9C349] pl-3.5">
+          <h2 id="preg-enunciado" class="text-base sm:text-lg font-bold text-[#015383] leading-snug"></h2>
+        </div>
       </div>
 
-      <div class="flex gap-3 pt-3">
-        <button id="btn-anterior" onclick="irAnterior()" class="w-1/3 py-3.5 bg-slate-200 text-slate-700 font-bold rounded-xl">Atrás</button>
-        <button id="btn-siguiente" onclick="validarYAvanzar()" class="w-2/3 py-3.5 bg-blue-900 text-white font-bold rounded-xl transition-colors duration-300">Siguiente</button>
+      <div id="contenedor-opciones" class="space-y-3 pt-1"></div>
+
+      <div id="caja-pista" class="hidden bg-[#FFF8E6] border-l-4 border-[#AF191A] p-4 rounded-r-xl text-sm text-slate-800 shadow-sm">
+        <p class="font-extrabold text-[#AF191A] uppercase text-xs tracking-wider mb-1">💡 Pista pedagógica</p>
+        <p id="texto-pista" class="leading-relaxed"></p>
+      </div>
+
+      <div class="flex gap-3 pt-3 border-t border-slate-100">
+        <button id="btn-anterior" onclick="irAnterior()"
+          class="w-1/3 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm rounded-xl transition-colors cursor-pointer">
+          ← Atrás
+        </button>
+        <button id="btn-siguiente" onclick="validarYAvanzar()"
+          class="w-2/3 py-3.5 bg-[#015383] text-white font-bold uppercase tracking-wider text-sm rounded-xl shadow transition-colors cursor-pointer">
+          Siguiente
+        </button>
       </div>
     </div>
 
-    <!-- PANTALLA 3: RESULTADO -->
-    <div id="vista-final" class="hidden bg-white rounded-2xl shadow p-6 text-center space-y-5">
-      <div class="w-16 h-16 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto text-3xl font-bold">✓</div>
-      <h2 class="text-xl font-bold text-slate-800" id="titulo-resultado">¡Completaste el trayecto!</h2>
-      <p id="mensaje-resultado" class="text-sm text-slate-600">Tus respuestas fueron registradas. Descargá tu certificado oficial validado por la provincia.</p>
-      
-      <div id="caja-codigo" class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-600">
-        Código de validación: <strong id="texto-codigo" class="text-slate-900 font-mono text-sm"></strong>
+    <!-- PANTALLA 3: RESULTADO Y DESCARGA -->
+    <div id="vista-final" class="hidden bg-white rounded-2xl shadow-md border-t-8 border-[#F9C349] p-7 text-center space-y-5">
+      <div class="w-16 h-16 bg-[#015383] text-[#F9C349] rounded-full flex items-center justify-center mx-auto text-3xl font-black shadow-md">
+        ✓
+      </div>
+      <div>
+        <span class="inline-block bg-[#AF191A] text-white text-[10px] font-extrabold uppercase tracking-widest px-3 py-1 mb-2">
+          Trayecto Finalizado
+        </span>
+        <h2 class="text-xl sm:text-2xl font-extrabold text-[#015383]" id="titulo-resultado">¡Completaste el trayecto!</h2>
+      </div>
+      <p id="mensaje-resultado" class="text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
+        Tus respuestas fueron registradas. Descargá tu certificado oficial validado por la Subsecretaría de Educación.
+      </p>
+
+      <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs text-slate-600 space-y-1">
+        <p id="resumen-instituto" class="font-semibold text-[#015383]"></p>
+        <p>Código de validación: <strong id="texto-codigo" class="text-[#AF191A] font-mono text-sm"></strong></p>
       </div>
 
-      <button id="btn-descargar-pdf" onclick="descargarCertificadoPDF()" class="flex justify-center items-center gap-2 w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-4 rounded-xl shadow-lg cursor-pointer">
-        📄 Descargar Certificado (PDF)
+      <button id="btn-descargar-pdf" onclick="descargarCertificadoPDF()"
+        class="flex justify-center items-center gap-2 w-full bg-[#015383] hover:bg-[#013f63] text-white font-extrabold uppercase tracking-wider text-sm py-4 rounded-xl shadow-lg transition-all cursor-pointer">
+        📄 Descargar Certificado Oficial (PDF)
       </button>
     </div>
+
   </main>
 
-  <script>
-    // ==========================================
-    // PEGAR AQUÍ LA URL DE TU IMPLEMENTACIÓN DE APPS SCRIPT
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyk6WqkrWXRQ8jrTgsYSIYRm-NHJWY7QZTVZFZVJt1CtDl37mGqJhqz5RFyzei2cveC/exec";
-    // ==========================================
-    
-    let configCurso, listaPreguntas, indiceActual = 0, respuestasUsuario = {}, datosAlumno = {}, registroFinal = null;
+  <footer class="bg-[#015383] text-white/80 text-center text-[11px] py-3 px-4 border-t-4 border-[#AF191A]">
+    Subsecretaría de Educación · Ministerio de Educación, Ciencia y Tecnología · Provincia de Misiones
+  </footer>
 
-    // Paletas de colores dinámicas según el tipo/modo de pregunta
+  <script>
+    // ==========================================================
+    // URL DE TU IMPLEMENTACIÓN DE APPS SCRIPT
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyk6WqkrWXRQ8jrTgsYSIYRm-NHJWY7QZTVZFZVJt1CtDl37mGqJhqz5RFyzei2cveC/exec";
+    // ==========================================================
+
+    const OPCION_OTRO = "__OTRO_INSTITUTO__";
+
+    let configCurso = null;
+    let listaPreguntas = [];
+    let listaDepartamentos = [];
+    let mapaInstitutos = {};
+    let indiceActual = 0;
+    let respuestasUsuario = {};
+    let datosAlumno = {};
+    let registroFinal = null;
+
+    // Paletas dinámicas 100% fieles a la identidad oficial (#015383, #AF191A, #F9C349)
     const TEMAS = {
       REPASO: {
         nombre: "Actividad de Repaso",
-        header: "bg-amber-600 text-white",
-        cardBorder: "border-amber-500",
-        progress: "bg-amber-500",
-        badge: "bg-amber-100 text-amber-900 border border-amber-300",
-        optActive: "border-amber-500 bg-amber-50 text-amber-950 font-bold",
-        optBoxActive: "bg-amber-500 text-white",
-        btnNext: "bg-amber-600 hover:bg-amber-700 text-white"
+        cardBorder: "border-[#F9C349]",
+        progress: "bg-[#F9C349]",
+        badge: "bg-[#F9C349] text-[#015383]",
+        optActive: "border-[#F9C349] bg-[#FFFBEB] text-[#015383] font-bold shadow-sm",
+        optBoxActive: "bg-[#F9C349] text-[#015383]",
+        btnNext: "bg-[#015383] hover:bg-[#013f63] text-white"
       },
       MULTIPLE: {
         nombre: "Opción Múltiple",
-        header: "bg-sky-600 text-white",
-        cardBorder: "border-sky-500",
-        progress: "bg-sky-500",
-        badge: "bg-sky-100 text-sky-900 border border-sky-300",
-        optActive: "border-sky-500 bg-sky-50 text-sky-950 font-bold",
-        optBoxActive: "bg-sky-500 text-white",
-        btnNext: "bg-sky-600 hover:bg-sky-700 text-white"
+        cardBorder: "border-[#AF191A]",
+        progress: "bg-[#AF191A]",
+        badge: "bg-[#AF191A] text-white",
+        optActive: "border-[#AF191A] bg-red-50/70 text-[#79111A] font-bold shadow-sm",
+        optBoxActive: "bg-[#AF191A] text-white",
+        btnNext: "bg-[#AF191A] hover:bg-[#8d1314] text-white"
       },
       SIMPLE: {
         nombre: "Selección Simple",
-        header: "bg-blue-900 text-white",
-        cardBorder: "border-blue-800",
-        progress: "bg-blue-800",
-        badge: "bg-blue-100 text-blue-900 border border-blue-300",
-        optActive: "border-blue-800 bg-blue-50 text-blue-950 font-bold",
-        optBoxActive: "bg-blue-800 text-white",
-        btnNext: "bg-blue-900 hover:bg-blue-950 text-white"
+        cardBorder: "border-[#015383]",
+        progress: "bg-[#015383]",
+        badge: "bg-[#015383] text-white",
+        optActive: "border-[#015383] bg-sky-50/80 text-[#015383] font-bold shadow-sm",
+        optBoxActive: "bg-[#015383] text-white",
+        btnNext: "bg-[#015383] hover:bg-[#013f63] text-white"
       }
     };
 
@@ -150,34 +275,87 @@
       try {
         const res = await fetch(`${SCRIPT_URL}?action=init`);
         const data = await res.json();
-        configCurso = data.config;
-        listaPreguntas = data.preguntas;
+        if (!data.ok) throw new Error("Respuesta inválida del servidor");
 
-        const selectInst = document.getElementById('input-instituto');
-        selectInst.innerHTML = '<option value="">Seleccioná tu Instituto...</option>';
-        if (data.institutos && data.institutos.length > 0) {
-          data.institutos.forEach(inst => {
-            const opt = document.createElement('option');
-            opt.value = inst;
-            opt.textContent = inst;
-            selectInst.appendChild(opt);
-          });
-        } else {
-          selectInst.innerHTML = '<option value="">No hay institutos cargados</option>';
-        }
+        configCurso = data.config;
+        listaPreguntas = data.preguntas || [];
+        listaDepartamentos = data.departamentos || [];
+        mapaInstitutos = data.mapa_institutos || {};
+
+        // Cargar selector de Departamentos
+        const selectDepto = document.getElementById('input-departamento');
+        selectDepto.innerHTML = '<option value="">Seleccioná el departamento...</option>';
+        listaDepartamentos.forEach(dep => {
+          const opt = document.createElement('option');
+          opt.value = dep;
+          opt.textContent = dep;
+          selectDepto.appendChild(opt);
+        });
 
         document.getElementById('header-titulo').textContent = configCurso.titulo;
         document.getElementById('header-subtitulo').textContent = configCurso.subtitulo;
         mostrarVista('vista-inicio');
       } catch (e) {
-        document.getElementById('vista-cargando').innerHTML = "<p class='text-red-600 font-bold'>Error al conectar con el servidor. Intentá recargar la página.</p>";
+        document.getElementById('vista-cargando').innerHTML =
+          "<p class='text-[#AF191A] font-bold'>Error al conectar con el servidor. Intentá recargar la página.</p>";
       }
     };
 
+    function actualizarInstitutosPorDepto() {
+      const depto = document.getElementById('input-departamento').value;
+      const bloqueInst = document.getElementById('bloque-instituto');
+      const selectInst = document.getElementById('input-instituto');
+      const bloqueOtro = document.getElementById('bloque-otro-instituto');
+      const inputOtro = document.getElementById('input-otro-instituto');
+
+      inputOtro.value = '';
+      bloqueOtro.classList.add('hidden');
+
+      if (!depto) {
+        bloqueInst.classList.add('hidden');
+        return;
+      }
+
+      const lista = mapaInstitutos[depto] || [];
+      selectInst.innerHTML = '<option value="">Seleccioná tu Instituto...</option>';
+
+      lista.forEach(inst => {
+        const opt = document.createElement('option');
+        opt.value = inst;
+        opt.textContent = inst;
+        selectInst.appendChild(opt);
+      });
+
+      const optOtro = document.createElement('option');
+      optOtro.value = OPCION_OTRO;
+      optOtro.textContent = "Otro Instituto (Escribir nombre)";
+      selectInst.appendChild(optOtro);
+
+      bloqueInst.classList.remove('hidden');
+
+      // Si el departamento aún no tiene institutos listados (ej. 25 de Mayo / San Javier), abrir directo el ingreso manual
+      if (lista.length === 0) {
+        selectInst.value = OPCION_OTRO;
+        bloqueOtro.classList.remove('hidden');
+      }
+    }
+
+    function verificarOtroInstituto() {
+      const val = document.getElementById('input-instituto').value;
+      const bloqueOtro = document.getElementById('bloque-otro-instituto');
+      if (val === OPCION_OTRO) {
+        bloqueOtro.classList.remove('hidden');
+        document.getElementById('input-otro-instituto').focus();
+      } else {
+        bloqueOtro.classList.add('hidden');
+        document.getElementById('input-otro-instituto').value = '';
+      }
+    }
+
     async function verificarDNI() {
       const dni = document.getElementById('input-dni').value.replace(/\D/g, '');
-      if (dni.length < 7) return alert("Ingresá un DNI válido (sin puntos).");
-      
+      if (dni.length < 7 || dni.length > 9) return alert("Ingresá un DNI válido (solo números, sin puntos).");
+
       const btn = document.getElementById('btn-verificar');
       btn.textContent = "Verificando...";
       btn.disabled = true;
@@ -185,15 +363,13 @@
       try {
         const res = await fetch(`${SCRIPT_URL}?action=check_dni&dni=${dni}`);
         const data = await res.json();
-        
+
         if (data.encontrado && data.registro) {
           registroFinal = data.registro;
-          document.getElementById('texto-codigo').textContent = registroFinal.codigo_certificado;
-          document.getElementById('titulo-resultado').textContent = "Certificado recuperado";
-          document.getElementById('mensaje-resultado').textContent = `Hola ${registroFinal.nombre}, ya completaste este trayecto anteriormente. Podés volver a descargar tu certificado oficial.`;
-          mostrarVista('vista-final');
+          mostrarPantallaFinal(true);
         } else {
           document.getElementById('input-dni').disabled = true;
+          document.getElementById('input-dni').classList.add('bg-slate-100', 'text-slate-500');
           document.getElementById('campos-nuevos').classList.remove('hidden');
           btn.classList.add('hidden');
           document.getElementById('btn-comenzar').classList.remove('hidden');
@@ -206,16 +382,29 @@
     }
 
     function comenzarCuestionario() {
-      datosAlumno = {
-        dni: document.getElementById('input-dni').value.replace(/\D/g, ''),
-        apellido: document.getElementById('input-apellido').value.trim().toUpperCase(),
-        nombre: document.getElementById('input-nombre').value.trim(),
-        correo: document.getElementById('input-correo').value.trim(),
-        instituto: document.getElementById('input-instituto').value
-      };
-      if (!datosAlumno.apellido || !datosAlumno.nombre || !datosAlumno.instituto) {
-        return alert("Por favor completá tu apellido, nombre y seleccioná tu instituto.");
+      const dni = document.getElementById('input-dni').value.replace(/\D/g, '');
+      const apellido = document.getElementById('input-apellido').value.trim().toUpperCase();
+      const nombre = document.getElementById('input-nombre').value.trim();
+      const correo = document.getElementById('input-correo').value.trim().toLowerCase();
+      const departamento = document.getElementById('input-departamento').value;
+      const instSelec = document.getElementById('input-instituto').value;
+      const instOtro = document.getElementById('input-otro-instituto').value.trim();
+      const instituto = (instSelec === OPCION_OTRO) ? instOtro : instSelec;
+
+      if (!apellido || !nombre) {
+        return alert("Por favor completá tu apellido y nombre.");
       }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
+        return alert("Ingresá un correo electrónico válido (ej: nombre@gmail.com).");
+      }
+      if (!departamento) {
+        return alert("Seleccioná el departamento de tu institución.");
+      }
+      if (!instituto) {
+        return alert("Seleccioná tu Instituto o escribí su nombre completo.");
+      }
+
+      datosAlumno = { dni, apellido, nombre, correo, departamento, instituto };
       mostrarVista('vista-preguntas');
       renderizarPregunta();
     }
@@ -225,32 +414,30 @@
       const tema = obtenerTemaPregunta(preg);
       const pct = Math.round(((indiceActual + 1) / listaPreguntas.length) * 100);
 
-      // Aplicar colores del tema según tipo de pregunta
-      document.getElementById('main-header').className = `${tema.header} shadow-md p-4 transition-colors duration-300`;
-      document.getElementById('vista-preguntas').className = `bg-white rounded-2xl shadow border-t-8 ${tema.cardBorder} p-5 space-y-5 transition-all duration-300`;
+      document.getElementById('vista-preguntas').className =
+        `bg-white rounded-2xl shadow-md border-t-8 ${tema.cardBorder} p-6 space-y-5 transition-all duration-300`;
       document.getElementById('barra-progreso').className = `${tema.progress} h-full transition-all duration-300`;
       document.getElementById('barra-progreso').style.width = `${pct}%`;
-      
+
       const badgeTipo = document.getElementById('badge-tipo');
-      badgeTipo.className = `px-2.5 py-1 rounded-full text-xs font-extrabold uppercase tracking-wide ${tema.badge}`;
+      badgeTipo.className = `px-3 py-1 rounded-md text-[11px] font-extrabold uppercase tracking-wider ${tema.badge}`;
       badgeTipo.textContent = tema.nombre;
 
-      const pregModulo = document.getElementById('preg-modulo');
-      pregModulo.className = `inline-block text-xs font-bold px-3 py-1 rounded-full ${tema.badge}`;
-      pregModulo.textContent = preg.modulo;
-
+      document.getElementById('preg-modulo').textContent = preg.modulo;
       document.getElementById('texto-progreso').textContent = `Pregunta ${indiceActual + 1} de ${listaPreguntas.length}`;
       document.getElementById('preg-enunciado').textContent = preg.enunciado;
       document.getElementById('caja-pista').classList.add('hidden');
-      
+
       const cont = document.getElementById('contenedor-opciones');
       cont.innerHTML = '';
       const selec = respuestasUsuario[preg.nro] || [];
-      
+
       preg.opciones.forEach(op => {
         const btn = document.createElement('button');
         const activa = selec.includes(op.letra);
-        btn.className = `w-full text-left p-4 rounded-xl border-2 flex items-start gap-3 transition-all ${activa ? tema.optActive : 'border-slate-200 hover:bg-slate-50'}`;
+        btn.className = `w-full text-left p-4 rounded-xl border-2 flex items-start gap-3 transition-all cursor-pointer ${
+          activa ? tema.optActive : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700'
+        }`;
         btn.onclick = () => {
           if (preg.tipo_control === 'MULTIPLE') {
             if (selec.includes(op.letra)) respuestasUsuario[preg.nro] = selec.filter(l => l !== op.letra);
@@ -260,14 +447,16 @@
           }
           renderizarPregunta();
         };
-        btn.innerHTML = `<span class="w-6 h-6 shrink-0 flex justify-center items-center rounded font-bold text-sm ${activa ? tema.optBoxActive : 'bg-slate-200 text-slate-700'}">${op.letra}</span><span>${op.texto}</span>`;
+        btn.innerHTML = `<span class="w-7 h-7 shrink-0 flex justify-center items-center rounded-lg font-extrabold text-xs ${
+          activa ? tema.optBoxActive : 'bg-slate-200 text-slate-700'
+        }">${op.letra}</span><span class="text-sm sm:text-base leading-snug pt-0.5">${op.texto}</span>`;
         cont.appendChild(btn);
       });
 
       document.getElementById('btn-anterior').style.visibility = indiceActual === 0 ? 'hidden' : 'visible';
       const btnSig = document.getElementById('btn-siguiente');
-      btnSig.className = `w-2/3 py-3.5 font-bold rounded-xl transition-colors duration-300 ${tema.btnNext}`;
-      btnSig.textContent = indiceActual === listaPreguntas.length - 1 ? 'Finalizar y Certificar' : 'Siguiente';
+      btnSig.className = `w-2/3 py-3.5 font-bold uppercase tracking-wider text-sm rounded-xl shadow transition-colors cursor-pointer ${tema.btnNext}`;
+      btnSig.textContent = indiceActual === listaPreguntas.length - 1 ? 'Finalizar y Certificar ✓' : 'Siguiente →';
     }
 
     function validarYAvanzar() {
@@ -300,11 +489,9 @@
     }
 
     async function enviarFinal() {
-      document.getElementById('main-header').className = "bg-blue-900 text-white shadow-md p-4 transition-colors duration-300";
       mostrarVista('vista-cargando');
-      document.getElementById('texto-cargando').textContent = "Registrando tus respuestas y generando tu certificado...";
-      
-      // Transformar las respuestas elegidas en el TEXTO real para que en Google Sheets quede listo para graficar
+      document.getElementById('texto-cargando').textContent = "Registrando tus respuestas y preparando tu certificado...";
+
       const respuestasColumnas = listaPreguntas.map(preg => {
         const letrasElegidas = respuestasUsuario[preg.nro] || [];
         const textosElegidos = letrasElegidas.map(letra => {
@@ -325,90 +512,227 @@
           })
         });
         const data = await res.json();
-        
         if (!data.ok) throw new Error(data.error || "Error al guardar");
 
         registroFinal = data.registro;
-        document.getElementById('texto-codigo').textContent = registroFinal.codigo_certificado;
-        mostrarVista('vista-final');
+        mostrarPantallaFinal(false);
       } catch (err) {
         alert("Ocurrió un error al guardar tus respuestas: " + err.message + ". Por favor intentá nuevamente.");
         mostrarVista('vista-preguntas');
       }
     }
 
-    // Genera el certificado PDF instantáneamente en el celular/PC del alumno sin usar cuota de Google Drive
+    function mostrarPantallaFinal(recuperado) {
+      document.getElementById('texto-codigo').textContent = registroFinal.codigo_certificado;
+      const deptoTxt = registroFinal.departamento ? ` (${registroFinal.departamento})` : '';
+      document.getElementById('resumen-instituto').textContent = `${registroFinal.instituto}${deptoTxt}`;
+
+      if (recuperado) {
+        document.getElementById('titulo-resultado').textContent = "Certificado recuperado";
+        document.getElementById('mensaje-resultado').textContent =
+          `Hola ${registroFinal.nombre}, ya completaste este trayecto anteriormente. Podés volver a descargar tu certificado oficial.`;
+      }
+      mostrarVista('vista-final');
+    }
+
+    // ==========================================================
+    // CERTIFICADO PDF VECTORIAL CON IDENTIDAD OFICIAL
+    // Colores exactos: Azul #015383 | Rojo #AF191A | Mostaza #F9C349
+    // ==========================================================
+    function drawDiamond(doc, cx, cy, r, fillRgb) {
+      doc.setFillColor(fillRgb[0], fillRgb[1], fillRgb[2]);
+      doc.triangle(cx, cy - r, cx + r, cy, cx - r, cy, 'F');
+      doc.triangle(cx, cy + r, cx + r, cy, cx - r, cy, 'F');
+    }
+
     function descargarCertificadoPDF() {
       if (!registroFinal) return;
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
 
-      // Marco decorativo institucional
-      doc.setDrawColor(30, 58, 138); // Azul oscuro
-      doc.setLineWidth(3);
-      doc.rect(10, 10, 277, 190);
-      doc.setDrawColor(2, 132, 199); // Celeste
-      doc.setLineWidth(0.8);
-      doc.rect(14, 14, 269, 182);
+      const AZUL = [1, 83, 131];       // #015383
+      const ROJO = [175, 25, 26];      // #AF191A
+      const BORDO = [121, 17, 26];     // #79111A
+      const AMARILLO = [249, 195, 73]; // #F9C349
+      const BLANCO = [255, 255, 255];
+      const TEXTO = [30, 41, 59];
+      const GRIS = [100, 116, 139];
 
-      // Encabezado Institucional
+      // 1. Fondo blanco limpio
+      doc.setFillColor(...BLANCO);
+      doc.rect(0, 0, 297, 210, 'F');
+
+      // 2. Franja vertical izquierda amarilla + marco azul sutil
+      doc.setFillColor(...AMARILLO);
+      doc.rect(0, 0, 7, 178, 'F');
+      doc.setFillColor(...ROJO);
+      doc.rect(0, 178, 7, 32, 'F');
+
+      // 3. CINTA GEOMÉTRICA DERECHA (fiel a las placas de referencia)
+      // Base de fondo azul en el borde derecho
+      doc.setFillColor(...AZUL);
+      doc.rect(244, 0, 53, 210, 'F');
+
+      // Módulos geométricos superpuestos (rombos y círculos con borde blanco)
+      // Módulo superior: Rombo Rojo + Círculo Azul
+      drawDiamond(doc, 262, 26, 26, BLANCO);
+      drawDiamond(doc, 262, 26, 22, ROJO);
+      doc.setFillColor(...BLANCO);
+      doc.circle(262, 26, 12, 'F');
+
+      doc.setFillColor(...BLANCO);
+      doc.circle(286, 56, 20, 'F');
+      doc.setFillColor(...AZUL);
+      doc.circle(286, 56, 17, 'F');
+      drawDiamond(doc, 286, 56, 13, AMARILLO);
+      doc.setFillColor(...BLANCO);
+      doc.circle(286, 56, 7.5, 'F');
+
+      // Módulo central protagonista: Círculo Mostaza Dorado con halo blanco
+      doc.setFillColor(...BLANCO);
+      doc.circle(256, 102, 25, 'F');
+      doc.setFillColor(...AMARILLO);
+      doc.circle(256, 102, 21, 'F');
+
+      // Módulo medio-bajo: Rombo Azul con calado blanco
+      drawDiamond(doc, 284, 138, 25, BLANCO);
+      drawDiamond(doc, 284, 138, 21, AZUL);
+      doc.setFillColor(...BLANCO);
+      doc.circle(284, 138, 11.5, 'F');
+
+      // Módulo inferior: Círculo Rojo + acento Bordó + Rombo Amarillo
+      doc.setFillColor(...BLANCO);
+      doc.circle(258, 174, 24, 'F');
+      doc.setFillColor(...ROJO);
+      doc.circle(258, 174, 20.5, 'F');
+      drawDiamond(doc, 258, 174, 11, BORDO);
+
+      drawDiamond(doc, 288, 194, 20, BLANCO);
+      drawDiamond(doc, 288, 194, 16.5, AMARILLO);
+      doc.setFillColor(...BLANCO);
+      doc.circle(288, 194, 8.5, 'F');
+
+      // 4. PIE INSTITUCIONAL AZUL (estilo placa de Bibliografía)
+      doc.setFillColor(...AZUL);
+      doc.rect(7, 178, 237, 32, 'F');
+      doc.setFillColor(...AMARILLO);
+      doc.rect(7, 178, 237, 1.5, 'F');
+
+      // 5. ENCABEZADO DEL CERTIFICADO (Área útil izquierda: x = 22 a 228, centro = 125)
+      const cx = 125;
+
+      // Etiqueta roja superior
+      doc.setFillColor(...ROJO);
+      doc.rect(22, 18, 96, 9, 'F');
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(13);
-      doc.setTextColor(71, 85, 105);
-      doc.text((configCurso.subtitulo || "PROVINCIA DE MISIONES").toUpperCase(), 148.5, 34, { align: "center" });
+      doc.setFontSize(9.5);
+      doc.setTextColor(...BLANCO);
+      doc.text("CURSILLO DE INGRESO · MISIONES", 70, 24, { align: "center" });
 
-      // Título del Certificado
-      doc.setFontSize(26);
-      doc.setTextColor(30, 58, 138);
-      doc.text("CERTIFICADO DE REALIZACIÓN", 148.5, 52, { align: "center" });
+      // Subtítulo institucional a la derecha de la etiqueta
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9);
+      doc.setTextColor(...GRIS);
+      doc.text((configCurso.subtitulo || "SUBSECRETARÍA DE EDUCACIÓN - PROVINCIA DE MISIONES").toUpperCase(), 228, 24, { align: "right" });
 
-      // Cuerpo del Certificado
+      // Título principal con barra vertical mostaza a la izquierda
+      doc.setFillColor(...AMARILLO);
+      doc.rect(22, 36, 2.5, 16, 'F');
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(23);
+      doc.setTextColor(...AZUL);
+      doc.text("CERTIFICADO DE REALIZACIÓN", 29, 47);
+
+      // Línea divisoria sutil
+      doc.setDrawColor(226, 232, 240);
+      doc.setLineWidth(0.5);
+      doc.line(22, 57, 228, 57);
+
+      // 6. CUERPO CENTRAL
       doc.setFont("helvetica", "normal");
-      doc.setFontSize(14);
-      doc.setTextColor(51, 65, 85);
-      doc.text("Por medio del presente se deja constancia de que:", 148.5, 72, { align: "center" });
+      doc.setFontSize(12.5);
+      doc.setTextColor(...TEXTO);
+      doc.text("Por medio del presente se deja constancia de que:", cx, 71, { align: "center" });
 
-      // Nombre y Apellido del Alumno
+      // Nombre y Apellido
+      const nombreCompleto = `${registroFinal.apellido}, ${registroFinal.nombre}`.toUpperCase();
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(22);
-      doc.setTextColor(15, 23, 42);
-      doc.text(`${registroFinal.apellido}, ${registroFinal.nombre}`.toUpperCase(), 148.5, 88, { align: "center" });
+      doc.setFontSize(nombreCompleto.length > 34 ? 18 : 22);
+      doc.setTextColor(...AZUL);
+      doc.text(nombreCompleto, cx, 85, { align: "center" });
+
+      // Subrayado dorado bajo el nombre
+      doc.setDrawColor(...AMARILLO);
+      doc.setLineWidth(1.2);
+      doc.line(cx - 55, 89, cx + 55, 89);
 
       // DNI
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(14);
-      doc.setTextColor(51, 65, 85);
-      doc.text(`DNI N°: ${registroFinal.dni}`, 148.5, 99, { align: "center" });
-
-      // Trayecto e Instituto
-      doc.text("ha completado satisfactoriamente las actividades correspondientes al", 148.5, 115, { align: "center" });
-      
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(17);
-      doc.setTextColor(30, 58, 138);
-      doc.text(`"${configCurso.titulo}"`, 148.5, 126, { align: "center" });
+      doc.setFontSize(12);
+      doc.setTextColor(...GRIS);
+      doc.text(`DNI N° ${registroFinal.dni}`, cx, 98, { align: "center" });
 
+      // Texto de acreditación
       doc.setFont("helvetica", "normal");
-      doc.setFontSize(13);
-      doc.setTextColor(51, 65, 85);
-      doc.text(`Instituto: ${registroFinal.instituto}`, 148.5, 140, { align: "center" });
+      doc.setFontSize(12);
+      doc.setTextColor(...TEXTO);
+      doc.text("ha completado satisfactoriamente las actividades correspondientes al", cx, 111, { align: "center" });
 
-      // Pie de página con Fecha y Código Único
+      // Título del Trayecto en rojo carmesí destacado
+      const tituloTrayecto = `“${configCurso.titulo}”`;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(15);
+      doc.setTextColor(...ROJO);
+      const lineasTitulo = doc.splitTextToSize(tituloTrayecto, 196);
+      doc.text(lineasTitulo, cx, 121, { align: "center" });
+
+      // Recuadro limpio con Instituto y Departamento
+      const yCaja = 132 + (lineasTitulo.length > 1 ? 6 : 0);
+      doc.setFillColor(244, 247, 250);
       doc.setDrawColor(203, 213, 225);
-      doc.setLineWidth(0.5);
-      doc.line(35, 165, 262, 165);
+      doc.setLineWidth(0.4);
+      doc.roundedRect(26, yCaja, 198, 28, 3, 3, 'FD');
 
-      doc.setFontSize(10);
-      doc.setTextColor(100, 116, 139);
-      doc.text(`Fecha de emisión: ${registroFinal.fecha}`, 35, 175);
       doc.setFont("helvetica", "bold");
-      doc.text(`Código de validación único: ${registroFinal.codigo_certificado}`, 262, 175, { align: "right" });
+      doc.setFontSize(9);
+      doc.setTextColor(...AZUL);
+      doc.text("INSTITUTO DE FORMACIÓN DOCENTE", cx, yCaja + 7, { align: "center" });
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(...TEXTO);
+      const lineasInst = doc.splitTextToSize(registroFinal.instituto || "-", 186);
+      doc.text(lineasInst, cx, yCaja + 14, { align: "center" });
+
+      if (registroFinal.departamento) {
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(9.5);
+        doc.setTextColor(...GRIS);
+        const yDepto = yCaja + 14 + (lineasInst.length * 5) + 1;
+        doc.text(`Departamento: ${registroFinal.departamento} · Provincia de Misiones`, cx, Math.min(yDepto, yCaja + 25), { align: "center" });
+      }
+
+      // 7. DATOS DEL PIE AZUL
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9.5);
+      doc.setTextColor(...BLANCO);
+      doc.text(`Fecha de emisión: ${registroFinal.fecha}`, 22, 192);
+      doc.setFontSize(8.5);
+      doc.setTextColor(203, 213, 225);
+      doc.text("Documento generado digitalmente por la plataforma de Ingreso ISFD.", 22, 199);
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.5);
+      doc.setTextColor(...AMARILLO);
+      doc.text(`CÓDIGO DE VALIDACIÓN: ${registroFinal.codigo_certificado}`, 228, 195, { align: "right" });
 
       doc.save(`Certificado_${registroFinal.dni}.pdf`);
     }
 
     function mostrarVista(id) {
-      ['vista-cargando', 'vista-inicio', 'vista-preguntas', 'vista-final'].forEach(v => document.getElementById(v).classList.add('hidden'));
+      ['vista-cargando', 'vista-inicio', 'vista-preguntas', 'vista-final'].forEach(v =>
+        document.getElementById(v).classList.add('hidden')
+      );
       document.getElementById(id).classList.remove('hidden');
     }
   </script>
