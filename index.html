@@ -493,7 +493,7 @@
       document.getElementById('texto-cargando').textContent = "Registrando tus respuestas y preparando tu certificado...";
 
       const respuestasColumnas = listaPreguntas.map(preg => {
-        const letrasElegidas = respuestasUsuario[preg.nro] || [];
+        const letrasElegidas = [...(respuestasUsuario[preg.nro] || [])].sort();
         const textosElegidos = letrasElegidas.map(letra => {
           const opObj = preg.opciones.find(o => o.letra === letra);
           return opObj ? `${letra}) ${opObj.texto}` : letra;
